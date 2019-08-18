@@ -34,6 +34,16 @@ class DateMapper extends StaticMapper
         "TIME"
     ];
 
+    /**
+     * Overrided constructor to make initial mappings optional
+     *
+     * DateMapper constructor.
+     * @param iterable $mappings
+     */
+    public function __construct(iterable $mappings = [])
+    {
+        parent::__construct($mappings);
+    }
 
     /**
      * @inheritDoc
