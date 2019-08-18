@@ -120,6 +120,20 @@ class PDO extends \PDO
     }
 
     /**
+     * Returns a generator to insert values sent by Generators send method into data base
+     *
+     * @param string $sql
+     * @return \Generator
+     */
+    public function inject(string $sql) {
+        $stmt = $this->prepare($sql);
+        while (true) {
+            $values = yield;
+            $stmt->execute($values);
+        }
+    }
+
+    /**
      * @return MapperInterface|null
      */
     public function getValueMapper(): ?MapperInterface
