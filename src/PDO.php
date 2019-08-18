@@ -28,8 +28,8 @@ use TASoft\Util\Mapper\MapperInterface;
 
 class PDO extends \PDO
 {
-    const META_NATIVE_TYPE_KEY = 'native_type';
-    const META_NAME_KEY = 'name';
+    public $metaTypeKey = 'native_type';
+    public $metaNameNey = 'name';
 
     /**
      * @var MapperInterface|null
@@ -48,6 +48,10 @@ class PDO extends \PDO
         parent::__construct($dsn, $username, $passwd, $options);
         $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $this->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+
+        if(preg_match("/sqlite/i", $this->getAttribute(\PDO::ATTR_DRIVER_NAME))) {
+            $this->metaTypeKey = 'sqlite:decl_type';
+        }
     }
 
     /**
@@ -124,9 +128,9 @@ class PDO extends \PDO
             if($mapper = $this->getTypeMapper()) {
                 for($e=0;$e<$stmt->columnCount();$e++) {
                     $meta = $stmt->getColumnMeta($e);
-                    if($type = strtoupper($meta[ static::META_NATIVE_TYPE_KEY ] ?? NULL)) {
+                    if($type = strtoupper($meta[ $this->metaTypeKey ] ?? NULL)) {
                         if($class = $mapper->classForType($type))
-                            $map[ $meta[ static::META_NAME_KEY ] ] = $class;
+                            $map[ $meta[ $this->metaNameNey ] ] = $class;
                     }
                 }
             }

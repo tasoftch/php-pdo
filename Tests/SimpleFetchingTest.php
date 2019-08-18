@@ -29,6 +29,7 @@
  */
 
 use PHPUnit\Framework\TestCase;
+use TASoft\Util\Mapper\DateMapper;
 use TASoft\Util\Mapper\MapperChain;
 
 class SimpleFetchingTest extends TestCase
@@ -74,6 +75,9 @@ class SimpleFetchingTest extends TestCase
         $record = $pdo->selectOne("SELECT * FROM TEST");
         $this->assertEquals(["id" => 1, "name" => "thomas", "b_date" => "1986-07-08 00:00:00", "test_field" => "{6, 9}"], $record);
 
+        $mapper->addMapper( new DateMapper() );
 
+        $record = $pdo->selectOneWithObjects("SELECT * FROM TEST");
+        $this->assertInstanceOf(DateTime::class, $record["b_date"]);
     }
 }
