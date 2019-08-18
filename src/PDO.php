@@ -34,7 +34,21 @@ class PDO extends \PDO
     /**
      * @var MapperInterface|null
      */
-    private $valueMapper;
+    private $typeMapper;
+
+    /**
+     * PDO constructor.
+     * @param $dsn
+     * @param null $username
+     * @param null $passwd
+     * @param null $options
+     */
+    public function __construct($dsn, $username = NULL, $passwd = NULL, $options = NULL)
+    {
+        parent::__construct($dsn, $username, $passwd, $options);
+        $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+    }
 
     /**
      * Yields selected records from remote SQL host.
@@ -51,6 +65,20 @@ class PDO extends \PDO
             return true;
         }
         return false;
+    }
+
+    /**
+     * Fetches one row and directly the value of a field name
+     *
+     * @param string $sql
+     * @param string $fieldName
+     * @param array $arguments
+     * @return |null
+     */
+    public function selectFieldValue(string $sql, string $fieldName, array $arguments = []) {
+        foreach($this->select($sql, $arguments) as $record)
+            return $record[$fieldName] ?? NULL;
+        return NULL;
     }
 
     /**
@@ -93,7 +121,7 @@ class PDO extends \PDO
         $stmt = $this->prepare($sql);
         if($stmt->execute($arguments)) {
             $map = [];
-            if($mapper = $this->getValueMapper()) {
+            if($mapper = $this->getTypeMapper()) {
                 for($e=0;$e<$stmt->columnCount();$e++) {
                     $meta = $stmt->getColumnMeta($e);
                     if($type = strtoupper($meta[ static::META_NATIVE_TYPE_KEY ] ?? NULL)) {
@@ -120,6 +148,19 @@ class PDO extends \PDO
     }
 
     /**
+     * Selects only one record but by resolving objects.
+     *
+     * @param string $sql
+     * @param array $arguments
+     * @return mixed|null
+     */
+    public function selectOneWithObjects(string $sql, array $arguments = []) {
+        foreach($this->selectWithObjects($sql, $arguments) as $record)
+            return $record;
+        return NULL;
+    }
+
+    /**
      * Returns a generator to insert values sent by Generators send method into data base
      *
      * @param string $sql
@@ -136,18 +177,18 @@ class PDO extends \PDO
     /**
      * @return MapperInterface|null
      */
-    public function getValueMapper(): ?MapperInterface
+    public function getTypeMapper(): ?MapperInterface
     {
-        return $this->valueMapper;
+        return $this->typeMapper;
     }
 
     /**
-     * @param MapperInterface|null $valueMapper
+     * @param MapperInterface|null $typeMapper
      * @return static
      */
-    public function setValueMapper(?MapperInterface $valueMapper): self
+    public function setTypeMapper(?MapperInterface $typeMapper): self
     {
-        $this->valueMapper = $valueMapper;
+        $this->typeMapper = $typeMapper;
         return $this;
     }
 }
