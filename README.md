@@ -1,2 +1,2 @@
-# php-dependency-injection
-PHP Dependency Injection library in collaboration with service manager
+# Php PDO Extension
+This library extends the builtin PDO object by several useful features.
