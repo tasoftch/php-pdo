@@ -179,6 +179,28 @@ class PDO extends \PDO
     }
 
     /**
+     * Returns a generator to insert values sent by Generators send method into data base
+     * but in additional it will convert object values into their raw format
+     *
+     * @param string $sql
+     * @return \Generator
+     */
+    public function injectWithObjects(string $sql) {
+        $stmt = $this->prepare($sql);
+        while (true) {
+            $values = yield;
+            if($map = $this->getTypeMapper()) {
+                foreach($values as &$value) {
+                    if(!is_scalar($value)) {
+                        $value = $map->valueForObject($value);
+                    }
+                }
+            }
+            $stmt->execute($values);
+        }
+    }
+
+    /**
      * @return MapperInterface|null
      */
     public function getTypeMapper(): ?MapperInterface

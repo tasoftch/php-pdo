@@ -89,4 +89,16 @@ class MapperChain implements MapperInterface
         }
         return NULL;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function valueForObject($object)
+    {
+        foreach($this->getMappers() as $mapper) {
+            if($value = $mapper->valueForObject($object))
+                return $value;
+        }
+        return NULL;
+    }
 }

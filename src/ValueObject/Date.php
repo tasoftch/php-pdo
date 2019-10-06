@@ -21,30 +21,9 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Util\Mapper;
+namespace TASoft\Util\ValueObject;
 
 
-class DynamicMapper extends StaticMapper
+class Date extends \DateTime
 {
-    /**
-     * Add a mapping to the mapper
-     *
-     * @param string $typeName
-     * @param string $className
-     * @param bool $replace
-     */
-    public function addMapping(string $typeName, string $className, bool $replace = true) {
-        if(!isset($this->mappings[$typeName]) || $replace)
-            $this->mappings[$typeName] = $className;
-    }
-
-
-    /**
-     * Removes a mapping from mapper
-     * @param string $typeName
-     */
-    public function removeMapping(string $typeName) {
-        if(isset($this->mappings[$typeName]))
-            unset($this->mappings[$typeName]);
-    }
 }

@@ -21,28 +21,9 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Util\Mapper;
+namespace TASoft\Util\ValueObject;
 
 
-interface MapperInterface
+class Time extends \DateTime
 {
-    /**
-     * A mapper can return a class name to resolve the raw data from data base.
-     * The type is always passed in UPPERCASE.
-     * The returned class must expect one constructor argument, which is the raw value itself.
-     *
-     * @param string $type
-     * @return string|null
-     */
-    public function classForType(string $type): ?string;
-
-    /**
-     * Using the injectWithObjects method will call the mapper to transform any created object back into
-     * a scalar value that is storable in a data base.
-     * The implementation should return NULL if it is not able to convert the value.
-     *
-     * @param $object
-     * @return string|bool|int|float|null
-     */
-    public function valueForObject($object);
 }

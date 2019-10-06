@@ -23,38 +23,29 @@
 
 namespace TASoft\Util\Mapper;
 
+use TASoft\Util\ValueObject\Date;
+use TASoft\Util\ValueObject\DateTime;
+use TASoft\Util\ValueObject\Time;
 
-use DateTime;
-
-class DateMapper extends StaticMapper
+class DateMapper extends AbstractStaticMapper
 {
-    protected $dateValueTypes = [
-        "DATE",
-        "DATETIME",
-        "TIME"
+    protected $mappings = [
+        "DATE" => Date::class,
+        "DATETIME" => DateTime::class,
+        "TIME" => Time::class
     ];
-
-    /**
-     * Overrided constructor to make initial mappings optional
-     *
-     * DateMapper constructor.
-     * @param iterable $mappings
-     */
-    public function __construct(iterable $mappings = [])
-    {
-        parent::__construct($mappings);
-    }
 
     /**
      * @inheritDoc
      */
-    public function classForType(string $type): ?string
+    public function valueForObject($object)
     {
-        $class =  parent::classForType($type);
-
-        if(!$class && in_array($type, $this->dateValueTypes))
-            return DateTime::class;
-
-        return $class;
+        if($object instanceof Date)
+            return $object->format("Y-m-d");
+        elseif($object instanceof DateTime)
+            return $object->format("Y-m-d G:i:s");
+        elseif($object instanceof DateTime)
+            return $object->format("G:i:s");
+        return NULL;
     }
 }

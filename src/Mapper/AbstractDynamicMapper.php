@@ -24,25 +24,27 @@
 namespace TASoft\Util\Mapper;
 
 
-interface MapperInterface
+abstract class AbstractDynamicMapper extends AbstractStaticMapper
 {
     /**
-     * A mapper can return a class name to resolve the raw data from data base.
-     * The type is always passed in UPPERCASE.
-     * The returned class must expect one constructor argument, which is the raw value itself.
+     * Add a mapping to the mapper
      *
-     * @param string $type
-     * @return string|null
+     * @param string $typeName
+     * @param string $className
+     * @param bool $replace
      */
-    public function classForType(string $type): ?string;
+    public function addMapping(string $typeName, string $className, bool $replace = true) {
+        if(!isset($this->mappings[$typeName]) || $replace)
+            $this->mappings[$typeName] = $className;
+    }
+
 
     /**
-     * Using the injectWithObjects method will call the mapper to transform any created object back into
-     * a scalar value that is storable in a data base.
-     * The implementation should return NULL if it is not able to convert the value.
-     *
-     * @param $object
-     * @return string|bool|int|float|null
+     * Removes a mapping from mapper
+     * @param string $typeName
      */
-    public function valueForObject($object);
+    public function removeMapping(string $typeName) {
+        if(isset($this->mappings[$typeName]))
+            unset($this->mappings[$typeName]);
+    }
 }

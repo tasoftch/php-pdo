@@ -24,25 +24,25 @@
 namespace TASoft\Util\Mapper;
 
 
-interface MapperInterface
+abstract class AbstractStaticMapper implements MapperInterface
 {
-    /**
-     * A mapper can return a class name to resolve the raw data from data base.
-     * The type is always passed in UPPERCASE.
-     * The returned class must expect one constructor argument, which is the raw value itself.
-     *
-     * @param string $type
-     * @return string|null
-     */
-    public function classForType(string $type): ?string;
+    protected $mappings = [];
 
     /**
-     * Using the injectWithObjects method will call the mapper to transform any created object back into
-     * a scalar value that is storable in a data base.
-     * The implementation should return NULL if it is not able to convert the value.
-     *
-     * @param $object
-     * @return string|bool|int|float|null
+     * @inheritDoc
      */
-    public function valueForObject($object);
+    public function classForType(string $type): ?string
+    {
+        return $this->mappings[$type] ?? NULL;
+    }
+
+    /**
+     * StaticMapper constructor.
+     * @param iterable $mappings
+     */
+    public function __construct(iterable $mappings)
+    {
+        foreach($mappings as $type => $class)
+            $this->mappings[ strtoupper($type) ] = $class;
+    }
 }

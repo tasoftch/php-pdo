@@ -21,28 +21,9 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Util\Mapper;
+namespace TASoft\Util\ValueObject;
 
 
-class StaticMapper implements MapperInterface
+class DateTime extends \DateTime
 {
-    protected $mappings = [];
-
-    /**
-     * @inheritDoc
-     */
-    public function classForType(string $type): ?string
-    {
-        return $this->mappings[$type] ?? NULL;
-    }
-
-    /**
-     * StaticMapper constructor.
-     * @param iterable $mappings
-     */
-    public function __construct(iterable $mappings)
-    {
-        foreach($mappings as $type => $class)
-            $this->mappings[ strtoupper($type) ] = $class;
-    }
 }

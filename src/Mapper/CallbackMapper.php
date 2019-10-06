@@ -29,13 +29,18 @@ class CallbackMapper implements MapperInterface
     /** @var callable */
     private $callback;
 
+    /** @var callable|null */
+    private $convertCallback;
+
     /**
      * CallbackMapper constructor.
      * @param callable $callback
+     * @param  callable $convertCallback
      */
-    public function __construct(callable $callback = NULL)
+    public function __construct(callable $callback = NULL, callable $convertCallback = NULL)
     {
         $this->callback = $callback;
+        $this->convertCallback = $convertCallback;
     }
 
     /**
@@ -43,8 +48,18 @@ class CallbackMapper implements MapperInterface
      */
     public function classForType(string $type): ?string
     {
-        if(is_callable($this->callback))
-            return call_user_func($this->callback, $type);
+        if(is_callable($cb = $this->getCallback()))
+            return call_user_func($cb, $type);
+        return NULL;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function valueForObject($object)
+    {
+        if(is_callable($cb = $this->getConvertCallback()))
+            return call_user_func($cb, $object);
         return NULL;
     }
 
@@ -65,5 +80,21 @@ class CallbackMapper implements MapperInterface
     {
         $this->callback = $callback;
         return $this;
+    }
+
+    /**
+     * @return callable|null
+     */
+    public function getConvertCallback(): ?callable
+    {
+        return $this->convertCallback;
+    }
+
+    /**
+     * @param callable|null $convertCallback
+     */
+    public function setConvertCallback(?callable $convertCallback): void
+    {
+        $this->convertCallback = $convertCallback;
     }
 }
