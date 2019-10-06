@@ -37,4 +37,33 @@ $gen->send(["Thomas", "email@example.org"]);
 Please note that the SQL syntax is directly passed to the built-in Php PDO object. See those documentation for more information about the SQL scripting language.
 
 ### Mapping
-The library also allows to 
+The library also allows to map values from raw format of a data base into objects and backwards.
+
+```php
+$PDO->setTypeMapper( new DateMapper() );
+// Now the methods selectWithObjects and injectWithObjects will convert raw values into their object values.
+
+$record = $PDO->selectOneWithObjects("SELECT * FROM XXX");
+print_r($record);
+/*
+Might look like:
+Array (
+    'the_date' => TASoft\Util\ValueObject\Date ... ,
+    'the_date_time' => TASoft\Util\ValueObject\DateTime ... ,
+    'the_time' => TASoft\Util\ValueObject\Time ...
+)
+
+// SQL:
+CREATE TABLE XXX (
+    the_date DATE DEFAULT NULL,
+    the_date_time DATETIME DEFAULT NULL,
+    the_time TIME DEFAULT NULL
+)
+*/
+
+// This also works backward:
+$newDate = new TASoft\Util\ValueObject\Date("1999-05-23");
+$PDO->injectWithObjcts("UPDATE XXX SET the_date = ? WHERE ...")->send([$newDate, ...]);
+
+// Using MapperChain allows to combine more than one type mapper.
+```
