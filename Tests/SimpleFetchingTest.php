@@ -31,6 +31,8 @@
 use PHPUnit\Framework\TestCase;
 use TASoft\Util\Mapper\DateMapper;
 use TASoft\Util\Mapper\MapperChain;
+use TASoft\Util\ValueObject\Date;
+use TASoft\Util\ValueObject\Time;
 
 class SimpleFetchingTest extends TestCase
 {
@@ -79,5 +81,30 @@ class SimpleFetchingTest extends TestCase
 
         $record = $pdo->selectOneWithObjects("SELECT * FROM TEST");
         $this->assertInstanceOf(DateTime::class, $record["b_date"]);
+    }
+
+    public function testConverting() {
+        $path = __DIR__ . "/test.sqlite";
+        $pdo = new \TASoft\Util\PDO("sqlite:$path");
+
+        $pdo->setTypeMapper(new DateMapper());
+
+        $gen = $pdo->injectWithObjects("INSERT INTO MAP_TEST (datum, datum_zeit, zeit) VALUES (?, ?, ?)");
+
+        $datum = new Date("1986-07-09");
+        $datum_zeit = new \TASoft\Util\ValueObject\DateTime("1990-02-16 15:43:12");
+        $zeit = new Time("18:09:34");
+
+        $gen->send([$datum, $datum_zeit, $zeit]);
+
+        $test = $pdo->selectOne("SELECT * FROM MAP_TEST");
+
+        $this->assertEquals([
+            "datum" => '1986-07-09',
+            "datum_zeit" => '1990-02-16 15:43:12',
+            "zeit" => '18:09:34'
+        ], $test);
+
+        $pdo->exec("DELETE FROM MAP_TEST WHERE 1");
     }
 }

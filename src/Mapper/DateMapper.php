@@ -36,6 +36,14 @@ class DateMapper extends AbstractStaticMapper
     ];
 
     /**
+     * DateMapper constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct([]);
+    }
+
+    /**
      * @inheritDoc
      */
     public function valueForObject($object)
@@ -44,7 +52,7 @@ class DateMapper extends AbstractStaticMapper
             return $object->format("Y-m-d");
         elseif($object instanceof DateTime)
             return $object->format("Y-m-d G:i:s");
-        elseif($object instanceof DateTime)
+        elseif($object instanceof Time)
             return $object->format("G:i:s");
         return NULL;
     }
