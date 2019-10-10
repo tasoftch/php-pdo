@@ -25,6 +25,7 @@ namespace TASoft\Util;
 
 
 use TASoft\Util\Mapper\MapperInterface;
+use Throwable;
 
 class PDO extends \PDO
 {
@@ -198,6 +199,31 @@ class PDO extends \PDO
             }
             $stmt->execute($values);
         }
+    }
+
+    /**
+     * Performs SQL queries in transaction mode.
+     *
+     * @param callable $callbackToPerformTransaction The callback is called in transaction mode. If an exception was thrown, nothing is done in the database.
+     * @param bool $propagateException If true, the exception is thrown out of this method
+     * @return bool
+     * @throws Throwable
+     */
+    public function transaction(callable $callbackToPerformTransaction, bool $propagateException = true): bool {
+        if($callbackToPerformTransaction instanceof \Closure)
+            $callbackToPerformTransaction = $callbackToPerformTransaction->bindTo($this, get_class($this));
+
+        try {
+            $this->beginTransaction();
+            call_user_func($callbackToPerformTransaction);
+            $this->commit();
+        } catch (Throwable $exception) {
+            $this->rollBack();
+            if($propagateException)
+                throw $exception;
+            return false;
+        }
+        return true;
     }
 
     /**

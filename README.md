@@ -67,3 +67,17 @@ $PDO->injectWithObjcts("UPDATE XXX SET the_date = ? WHERE ...")->send([$newDate,
 
 // Using MapperChain allows to combine more than one type mapper.
 ```
+
+Another advantage is the ability to perform transactions.  
+Transactions combine several SQL statements and make sure that everyone of them is performed successfully.  
+Like: All or nothing
+```php
+$PDO->transaction(function() {
+    /** @var TASoft\Util\PDO $this */
+    $this->inject(....);
+    
+    $this->exec( .... );
+    ...
+});
+```
+If anywhere inside the code an exception occures, the transaction will be cancelled (rollBack).
