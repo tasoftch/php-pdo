@@ -38,6 +38,7 @@ class CompactByTransformer implements RecordTransformerInterface
     /** @var array */
     private $fieldNames = [];
     private $record;
+    private $ignoreNull = true;
 
     /**
      * CompactByTransformer constructor.
@@ -80,7 +81,15 @@ class CompactByTransformer implements RecordTransformerInterface
 
 
     protected function mergeRecords($existingRecord, $newRecord): array {
-        return array_merge($existingRecord, $newRecord);
+        if($this->isIgnoreNull()) {
+            foreach($newRecord as $key => $value) {
+                if(NULL === $existingRecord[$key])
+                    $existingRecord[$key] = $value;
+            }
+            return $existingRecord;
+        } else {
+            return array_merge($existingRecord, $newRecord);
+        }
     }
 
     protected function assignRecord($record): array {
@@ -113,5 +122,21 @@ class CompactByTransformer implements RecordTransformerInterface
     {
         $this->fieldNames = $fieldNames;
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isIgnoreNull(): bool
+    {
+        return $this->ignoreNull;
+    }
+
+    /**
+     * @param bool $ignoreNull
+     */
+    public function setIgnoreNull(bool $ignoreNull): void
+    {
+        $this->ignoreNull = $ignoreNull;
     }
 }

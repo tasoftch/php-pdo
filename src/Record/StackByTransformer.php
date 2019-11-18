@@ -42,7 +42,7 @@ class StackByTransformer extends CompactByTransformer
                 $existingRecord[$key][] = $value;
             }
             else
-                $existingRecord[$key] = $value;
+                $existingRecord[$key] = $this->isIgnoreNull() ? (NULL === $existingRecord[$key] ? $value : $existingRecord[$key]) : $value;
         }
         return $existingRecord;
     }
