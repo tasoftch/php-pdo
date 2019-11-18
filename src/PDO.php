@@ -25,6 +25,7 @@ namespace TASoft\Util;
 
 
 use TASoft\Util\Mapper\MapperInterface;
+use TASoft\Util\Record\RecordTransformerInterface;
 use Throwable;
 
 class PDO extends \PDO
@@ -36,6 +37,9 @@ class PDO extends \PDO
      * @var MapperInterface|null
      */
     private $typeMapper;
+
+    /** @var RecordTransformerInterface|null */
+    private $transformer;
 
     /**
      * PDO constructor.
@@ -65,8 +69,19 @@ class PDO extends \PDO
     public function select(string $sql, array $arguments = []) {
         $stmt = $this->prepare($sql);
         if($stmt->execute($arguments)) {
-            while ($record = $stmt->fetch())
+            while ($record = $stmt->fetch()) {
+                if($tr = $this->getTransformer()) {
+                    $record = $tr->transform($record);
+                    if(NULL === $record)
+                        continue;
+                }
                 yield $record;
+            }
+            if($tr = $this->getTransformer()) {
+                $record = $tr->transform(NULL);
+                if($record)
+                    yield $record;
+            }
             return true;
         }
         return false;
@@ -144,7 +159,18 @@ class PDO extends \PDO
                             $value = new $class($value);
                     }
                 }
+                if($tr = $this->getTransformer()) {
+                    $record = $tr->transform($record);
+                    if(NULL === $record)
+                        continue;
+                }
                 yield $record;
+            }
+
+            if($tr = $this->getTransformer()) {
+                $record = $tr->transform(NULL);
+                if($record)
+                    yield $record;
             }
 
             return true;
@@ -242,5 +268,21 @@ class PDO extends \PDO
     {
         $this->typeMapper = $typeMapper;
         return $this;
+    }
+
+    /**
+     * @return RecordTransformerInterface|null
+     */
+    public function getTransformer(): ?RecordTransformerInterface
+    {
+        return $this->transformer;
+    }
+
+    /**
+     * @param RecordTransformerInterface|null $transformer
+     */
+    public function setTransformer(?RecordTransformerInterface $transformer): void
+    {
+        $this->transformer = $transformer;
     }
 }
