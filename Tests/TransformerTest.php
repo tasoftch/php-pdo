@@ -66,7 +66,7 @@ class TransformerTest extends TestCase
 
         $result = [
             [
-                "wert" => "Bachmann",
+                "wert" => "Abplanalp",
                 "name" => "Thomas"
             ],
             [

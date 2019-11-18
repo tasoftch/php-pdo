@@ -21,9 +21,13 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Util\ValueObject;
+namespace TASoft\Util\ValueObject\DateLocale;
 
 
-class Time extends AbstractDateObject
+interface DateLocaleInterface
 {
+    public function getLongDayNames(): array;
+    public function getShortDayNames(): array;
+    public function getLongMonthNames(): array;
+    public function getShortMonthNames(): array;
 }

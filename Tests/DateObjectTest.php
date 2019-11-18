@@ -21,9 +21,19 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Util\ValueObject;
+/**
+ * DateObjectTest.php
+ * php-pdo
+ *
+ * Created on 2019-11-18 18:09 by thomas
+ */
 
+use PHPUnit\Framework\TestCase;
 
-class Time extends AbstractDateObject
+class DateObjectTest extends TestCase
 {
+    public function testDateFormat() {
+        $date = new \TASoft\Util\ValueObject\DateTime("2019-7-8 16:03:50");
+        echo $date->format("l D = d. F M Y G:i:s");
+    }
 }

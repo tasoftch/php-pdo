@@ -24,6 +24,6 @@
 namespace TASoft\Util\ValueObject;
 
 
-class Date extends \DateTime
+class Date extends AbstractDateObject
 {
 }

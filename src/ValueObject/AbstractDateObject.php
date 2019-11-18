@@ -24,6 +24,31 @@
 namespace TASoft\Util\ValueObject;
 
 
-class Time extends AbstractDateObject
+use TASoft\Util\ValueObject\DateLocale\DateLocale;
+
+abstract class AbstractDateObject extends \DateTime
 {
+    public $useDateLocale = true;
+
+    public function format($format)
+    {
+        $string = "";
+        for($e=0;$e<strlen($format);$e++) {
+            $char = $format[$e];
+            $string .= $this->convertSymbol($char);
+        }
+        return $string;
+    }
+
+    protected function convertSymbol($symbol) {
+        if($this->useDateLocale) {
+            switch ($symbol) {
+                case 'l': return DateLocale::getLocale()->getLongDayNames()[ parent::format("w")*1 ];
+                case 'D': return DateLocale::getLocale()->getShortDayNames()[ parent::format("w")*1 ];
+                case 'F': return DateLocale::getLocale()->getLongMonthNames()[ parent::format("m")-1 ];
+                case 'M': return DateLocale::getLocale()->getShortMonthNames()[ parent::format("m")-1 ];
+            }
+        }
+        return parent::format($symbol);
+    }
 }
