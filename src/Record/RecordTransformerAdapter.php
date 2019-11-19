@@ -46,6 +46,10 @@ class RecordTransformerAdapter implements RecordTransformerInterface
             if($record)
                 yield $record;
         }
+
+        $record = $this->transform(NULL);
+        if($record)
+            yield $record;
     }
 
     /**
