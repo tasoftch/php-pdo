@@ -31,6 +31,7 @@
 use PHPUnit\Framework\TestCase;
 use TASoft\Util\Record\CompactAllTransformer;
 use TASoft\Util\Record\CompactByTransformer;
+use TASoft\Util\Record\RecordTransformerAdapter;
 use TASoft\Util\Record\StackByTransformer;
 
 class TransformerTest extends TestCase
@@ -47,11 +48,15 @@ class TransformerTest extends TestCase
         }
         $this->assertEquals($count, $c);
 
-        $pdo->setTransformer( new CompactAllTransformer() );
-
         $passed = false;
 
-        foreach($pdo->select("SELECT * FROM INSERTING") as $record) {
+        foreach(
+            (
+                new RecordTransformerAdapter(
+                    new CompactAllTransformer(),
+                    $pdo->select("SELECT * FROM INSERTING")
+                )
+            )() as $record) {
             $this->assertFalse($passed);
             $passed = true;
             $this->assertCount($count, $record);
@@ -61,8 +66,6 @@ class TransformerTest extends TestCase
     public function testCompactTransformer() {
         $path = __DIR__ . "/transform.sqlite";
         $pdo = new \TASoft\Util\PDO("sqlite:$path");
-
-        $pdo->setTransformer(new CompactByTransformer(["name"]));
 
         $result = [
             [
@@ -87,7 +90,9 @@ class TransformerTest extends TestCase
             ]
         ];
 
-        foreach($pdo->select("SELECT wert, name FROM TRANSFORMER LEFT JOIN TRANSFORMER_ADDON ON transformer = TRANSFORMER.id") as $record) {
+        $adapter = (new RecordTransformerAdapter(new CompactByTransformer(["name"]), $pdo->select("SELECT wert, name FROM TRANSFORMER LEFT JOIN TRANSFORMER_ADDON ON transformer = TRANSFORMER.id")));
+
+        foreach($adapter() as $record) {
             $this->assertEquals(array_shift($result), $record);
         }
     }
@@ -96,9 +101,13 @@ class TransformerTest extends TestCase
         $path = __DIR__ . "/transform.sqlite";
         $pdo = new \TASoft\Util\PDO("sqlite:$path");
 
-        $pdo->setTransformer(new StackByTransformer(["name"], ["wert"]));
+        $adapter = new RecordTransformerAdapter(
+            new StackByTransformer(["name"], ["wert"]),
+            $pdo->select("SELECT wert, name FROM TRANSFORMER LEFT JOIN TRANSFORMER_ADDON ON transformer = TRANSFORMER.id")
+        );
 
-        foreach($pdo->select("SELECT wert, name FROM TRANSFORMER LEFT JOIN TRANSFORMER_ADDON ON transformer = TRANSFORMER.id") as $record) {
+
+        foreach($adapter() as $record) {
             print_r($record);
         }
     }
