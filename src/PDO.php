@@ -38,9 +38,6 @@ class PDO extends \PDO
      */
     private $typeMapper;
 
-    /** @var RecordTransformerInterface|null */
-    private $transformer;
-
     /**
      * PDO constructor.
      * @param $dsn
@@ -70,17 +67,7 @@ class PDO extends \PDO
         $stmt = $this->prepare($sql);
         if($stmt->execute($arguments)) {
             while ($record = $stmt->fetch()) {
-                if($tr = $this->getTransformer()) {
-                    $record = $tr->transform($record);
-                    if(NULL === $record)
-                        continue;
-                }
                 yield $record;
-            }
-            if($tr = $this->getTransformer()) {
-                $record = $tr->transform(NULL);
-                if($record)
-                    yield $record;
             }
             return true;
         }
@@ -159,18 +146,7 @@ class PDO extends \PDO
                             $value = new $class($value);
                     }
                 }
-                if($tr = $this->getTransformer()) {
-                    $record = $tr->transform($record);
-                    if(NULL === $record)
-                        continue;
-                }
                 yield $record;
-            }
-
-            if($tr = $this->getTransformer()) {
-                $record = $tr->transform(NULL);
-                if($record)
-                    yield $record;
             }
 
             return true;
@@ -268,21 +244,5 @@ class PDO extends \PDO
     {
         $this->typeMapper = $typeMapper;
         return $this;
-    }
-
-    /**
-     * @return RecordTransformerInterface|null
-     */
-    public function getTransformer(): ?RecordTransformerInterface
-    {
-        return $this->transformer;
-    }
-
-    /**
-     * @param RecordTransformerInterface|null $transformer
-     */
-    public function setTransformer(?RecordTransformerInterface $transformer): void
-    {
-        $this->transformer = $transformer;
     }
 }
