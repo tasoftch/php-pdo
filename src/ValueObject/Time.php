@@ -26,4 +26,5 @@ namespace TASoft\Util\ValueObject;
 
 class Time extends AbstractDateObject
 {
+    const DEFAULT_FORMAT = 'G:i:s';
 }

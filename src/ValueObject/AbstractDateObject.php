@@ -30,6 +30,8 @@ abstract class AbstractDateObject extends \DateTime
 {
     public $useDateLocale = true;
 
+    const DEFAULT_FORMAT = '';
+
     public function format($format)
     {
         $string = "";
@@ -50,5 +52,10 @@ abstract class AbstractDateObject extends \DateTime
             }
         }
         return parent::format($symbol);
+    }
+
+    public function __toString()
+    {
+        return $this->format( static::DEFAULT_FORMAT );
     }
 }

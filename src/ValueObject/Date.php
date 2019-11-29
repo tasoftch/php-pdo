@@ -26,4 +26,5 @@ namespace TASoft\Util\ValueObject;
 
 class Date extends AbstractDateObject
 {
+    const DEFAULT_FORMAT = "d.m.Y";
 }
