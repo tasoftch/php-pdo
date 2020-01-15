@@ -24,8 +24,8 @@
 namespace TASoft\Util;
 
 
+use Closure;
 use TASoft\Util\Mapper\MapperInterface;
-use TASoft\Util\Record\RecordTransformerInterface;
 use Throwable;
 
 class PDO extends \PDO
@@ -213,18 +213,23 @@ class PDO extends \PDO
      * @throws Throwable
      */
     public function transaction(callable $callbackToPerformTransaction, bool $propagateException = true, bool $bindToPDO = false): bool {
-        if($callbackToPerformTransaction instanceof \Closure && $bindToPDO)
+        if($callbackToPerformTransaction instanceof Closure && $bindToPDO)
             $callbackToPerformTransaction = $callbackToPerformTransaction->bindTo($this, get_class($this));
 
-        try {
-            $this->beginTransaction();
+        if($this->inTransaction()) {
+            // PDO can not stack transactions.
             call_user_func($callbackToPerformTransaction);
-            $this->commit();
-        } catch (Throwable $exception) {
-            $this->rollBack();
-            if($propagateException)
-                throw $exception;
-            return false;
+        } else {
+            try {
+                $this->beginTransaction();
+                call_user_func($callbackToPerformTransaction);
+                $this->commit();
+            } catch (Throwable $exception) {
+                $this->rollBack();
+                if($propagateException)
+                    throw $exception;
+                return false;
+            }
         }
         return true;
     }
