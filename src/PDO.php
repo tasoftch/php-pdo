@@ -208,11 +208,12 @@ class PDO extends \PDO
      *
      * @param callable $callbackToPerformTransaction The callback is called in transaction mode. If an exception was thrown, nothing is done in the database.
      * @param bool $propagateException If true, the exception is thrown out of this method
+     * @param bool $bindToPDO
      * @return bool
      * @throws Throwable
      */
-    public function transaction(callable $callbackToPerformTransaction, bool $propagateException = true): bool {
-        if($callbackToPerformTransaction instanceof \Closure)
+    public function transaction(callable $callbackToPerformTransaction, bool $propagateException = true, bool $bindToPDO = false): bool {
+        if($callbackToPerformTransaction instanceof \Closure && $bindToPDO)
             $callbackToPerformTransaction = $callbackToPerformTransaction->bindTo($this, get_class($this));
 
         try {
