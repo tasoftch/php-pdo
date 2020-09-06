@@ -35,6 +35,13 @@ class AbstractGenericPDOResource extends AbstractRecordPDOResource
 	];
 
 	/**
+	 * List all property values that represent arrays and must have unique values.
+	 *
+	 * @var array
+	 */
+	protected $uniqueArrayValueKeys = [];
+
+	/**
 	 * AbstractGenericPDOResource constructor.
 	 * @param array|iterable $record
 	 * @param callable[]|null $valueMap
@@ -135,6 +142,17 @@ class AbstractGenericPDOResource extends AbstractRecordPDOResource
 			return $k($recordKey, $propertyValue) ?: $recordKey;
 		}
 		return $k;
+	}
+
+	/**
+	 * Called at final to complete the resource.
+	 * Probably make array values unique
+	 */
+	protected function completeGeneric() {
+		foreach($this->uniqueArrayValueKeys as $key) {
+			if(is_array($this->$key))
+				$this->$key = array_unique($this->$key);
+		}
 	}
 
 	/**
