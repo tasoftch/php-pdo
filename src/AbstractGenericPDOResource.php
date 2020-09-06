@@ -27,8 +27,6 @@
 namespace TASoft\Util;
 
 
-use TASoft\Util\Mapper\MapperInterface;
-
 class AbstractGenericPDOResource extends AbstractRecordPDOResource
 {
 	protected $propertyMap = [
@@ -45,7 +43,7 @@ class AbstractGenericPDOResource extends AbstractRecordPDOResource
 	{
 		if(is_array($record)) {
 			parent::__construct($record);
-			$this->parseRecord($record);
+			$this->parseRecord($record, $valueMap);
 		} elseif(is_iterable($record)) {
 			$f = 0;
 			foreach($record as $r) {
