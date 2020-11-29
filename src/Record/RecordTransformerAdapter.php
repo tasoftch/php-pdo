@@ -28,52 +28,58 @@ namespace TASoft\Util\Record;
  * Use objects of the abstract transformer.
  * @package TASoft\Util\Record
  */
-class RecordTransformerAdapter implements RecordTransformerInterface
+class RecordTransformerAdapter implements RecordTransformerInterface, \IteratorAggregate
 {
-    private $generator;
-    private $transformer;
+	private $generator;
+	private $transformer;
 
-    public function __construct(RecordTransformerInterface $transformer, \Generator $selectGenerator)
-    {
-        $this->generator = $selectGenerator;
-        $this->transformer = $transformer;
-    }
+	public function __construct(RecordTransformerInterface $transformer, iterable $selectGenerator)
+	{
+		$this->generator = $selectGenerator;
+		$this->transformer = $transformer;
+	}
 
-    public function __invoke()
-    {
-        foreach($this->generator as $record) {
-            $record = $this->transform($record);
-            if($record)
-                yield $record;
-        }
+	public function getIterator()
+	{
+		return $this();
+	}
 
-        $record = $this->transform(NULL);
-        if($record)
-            yield $record;
-    }
 
-    /**
-     * Forwarder method
-     * @inheritDoc
-     */
-    public function transform($record): ?array
-    {
-        return $this->getTransformer()->transform($record);
-    }
+	public function __invoke()
+	{
+		foreach($this->generator as $record) {
+			$record = $this->transform($record);
+			if($record)
+				yield $record;
+		}
 
-    /**
-     * @return RecordTransformerInterface
-     */
-    public function getTransformer(): RecordTransformerInterface
-    {
-        return $this->transformer;
-    }
+		$record = $this->transform(NULL);
+		if($record)
+			yield $record;
+	}
 
-    /**
-     * @return \Generator
-     */
-    public function getGenerator(): \Generator
-    {
-        return $this->generator;
-    }
+	/**
+	 * Forwarder method
+	 * @inheritDoc
+	 */
+	public function transform($record): ?array
+	{
+		return $this->getTransformer()->transform($record);
+	}
+
+	/**
+	 * @return RecordTransformerInterface
+	 */
+	public function getTransformer(): RecordTransformerInterface
+	{
+		return $this->transformer;
+	}
+
+	/**
+	 * @return \Generator
+	 */
+	public function getGenerator(): \Generator
+	{
+		return $this->generator;
+	}
 }
