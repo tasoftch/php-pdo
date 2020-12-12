@@ -46,11 +46,11 @@ class AbstractGenericPDOResource extends AbstractRecordPDOResource
 	 * @param array|iterable $record
 	 * @param callable[]|null $valueMap
 	 */
-	public function __construct($record, array $valueMap = NULL)
+	public function __construct($record, string $prefix = NULL, array $valueMap = NULL)
 	{
 		if(is_array($record)) {
 			parent::__construct($record);
-			$this->parseRecord($record, $valueMap);
+			$this->parseRecord($record, $prefix, $valueMap);
 		} elseif(is_iterable($record)) {
 			$f = 0;
 			foreach($record as $r) {
@@ -59,9 +59,10 @@ class AbstractGenericPDOResource extends AbstractRecordPDOResource
 						parent::__construct($r);
 						$f=1;
 					}
-					$this->parseRecord($r, $valueMap);
+					$this->parseRecord($r, $prefix, $valueMap);
 				}
 			}
+			$this->completeGeneric();
 		}
 	}
 
@@ -116,7 +117,8 @@ class AbstractGenericPDOResource extends AbstractRecordPDOResource
 	 * @param $value
 	 */
 	protected function assignValue(string $propertyName, $value) {
-		$this->$propertyName = $value;
+		if(isset($this->$propertyName))
+			$this->$propertyName = $value;
 	}
 
 	/**
@@ -126,7 +128,8 @@ class AbstractGenericPDOResource extends AbstractRecordPDOResource
 	 * @param $value
 	 */
 	protected function assignArrayValue(string $propertyName, $value) {
-		$this->$propertyName[] = $value;
+		if(isset($this->$propertyName))
+			$this->$propertyName[] = $value;
 	}
 
 	/**
@@ -134,10 +137,11 @@ class AbstractGenericPDOResource extends AbstractRecordPDOResource
 	 *
 	 * @param string $recordKey
 	 * @param $propertyValue
+	 * @param array|null $propertyMap
 	 * @return string
 	 */
-	protected function mapProperty(string $recordKey, &$propertyValue): string {
-		$k = $this->propertyMap[$recordKey] ?? $recordKey;
+	protected function mapProperty(string $recordKey, &$propertyValue, ?array $propertyMap): string {
+		$k = $propertyMap[$recordKey] ?? $recordKey;
 		if(is_callable($k)) {
 			return $k($recordKey, $propertyValue) ?: $recordKey;
 		}
@@ -153,18 +157,28 @@ class AbstractGenericPDOResource extends AbstractRecordPDOResource
 			if(is_array($this->$key))
 				$this->$key = array_unique($this->$key);
 		}
+
+		unset($this->propertyMap);
+		unset($this->uniqueArrayValueKeys);
 	}
 
 	/**
 	 * @param $record
+	 * @param string|null $prefix
 	 * @param callable[]|null $valueMap
 	 */
-	protected function parseRecord($record, array $valueMap) {
+	protected function parseRecord($record, ?string $prefix, ?array $valueMap) {
 		foreach($record as $key => $value) {
+			if(NULL !== $prefix) {
+				if(stripos($key, $prefix) === 0) {
+					$key = substr($key, strlen($prefix) + 1);
+				}
+			}
+
 			if($m = $valueMap[$key] ?? NULL)
 				$value = is_callable($m) ? $m($value) : $value;
 
-			$key = $this->mapProperty($key, $value);
+			$key = $this->mapProperty($key, $value, $valueMap);
 
 			if($this->isBoolProperty($key))
 				$this->assignValue($key, (bool)$value);
