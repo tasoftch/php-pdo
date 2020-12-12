@@ -168,7 +168,7 @@ class PDO extends \PDO
     }
 
     /**
-     * Returns a generator to insert values sent by Generators send method into data base
+     * Returns a generator to insert or update values sent by Generators send method into data base
      *
      * @param string $sql
      * @return \Generator
@@ -180,6 +180,38 @@ class PDO extends \PDO
             $stmt->execute($values);
         }
     }
+
+	/**
+	 * @param string $sql
+	 * @param callable|null $map
+	 * @return \Generator
+	 */
+    public function injectFiltered(string $sql, callable $map = NULL) {
+		$stmt = $this->prepare($sql);
+		if(preg_match_all("/:(\w+)/i", $sql, $ms)) {
+			$filter = function(&$k, &$v) use ($ms, $map) {
+				if($map && !$map($k, $v))
+					return false;
+				if(!in_array($k, $ms[1]))
+					return false;
+				return true;
+			};
+		} else {
+			$filter = function(&$k, &$v) use ($map) {
+				if($map && !$map($k, $v))
+					return false;
+				return true;
+			};
+		}
+		while (true) {
+			$values = [];
+			foreach (yield as $k => $v) {
+				if($filter($k, $v))
+					$values[$k] = $v;
+			}
+			$stmt->execute($values);
+		}
+	}
 
     /**
      * Returns a generator to insert values sent by Generators send method into data base
