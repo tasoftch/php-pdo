@@ -1,6 +1,8 @@
 <?php
-/**
- * Copyright (d) 2019 TASoft Applications, Th. Abplanalp <info@tasoft.ch>
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 TASoft Applications
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,21 +21,40 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */
-
-/**
- * DateObjectTest.php
- * php-pdo
  *
- * Created on 2019-11-18 18:09 by thomas
  */
 
-use PHPUnit\Framework\TestCase;
+namespace TASoft\Util\Exception;
 
-class DateObjectTest extends TestCase
+
+use TASoft\Util\Installer\InstallerInterface;
+use Throwable;
+
+class InstallerException extends \PDOException
 {
-    public function testDateFormat() {
-        $date = new \TASoft\Util\ValueObject\DateTime("2019-7-8 16:03:50");
-        echo $date->format("l D = d. F M Y G:i:s");
-    }
+	/** @var InstallerInterface|null */
+	private $installer;
+
+	public function __construct($message = "", $code = 0, Throwable $previous = null, ...$args)
+	{
+		parent::__construct(vsprintf($message, $args), $code, $previous);
+	}
+
+	/**
+	 * @param InstallerInterface|null $installer
+	 * @return static
+	 */
+	public function setInstaller(?InstallerInterface $installer)
+	{
+		$this->installer = $installer;
+		return $this;
+	}
+
+	/**
+	 * @return InstallerInterface|null
+	 */
+	public function getInstaller(): ?InstallerInterface
+	{
+		return $this->installer;
+	}
 }

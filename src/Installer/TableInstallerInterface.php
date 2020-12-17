@@ -1,6 +1,8 @@
 <?php
-/**
- * Copyright (d) 2019 TASoft Applications, Th. Abplanalp <info@tasoft.ch>
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 TASoft Applications
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,21 +21,38 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */
-
-/**
- * DateObjectTest.php
- * php-pdo
  *
- * Created on 2019-11-18 18:09 by thomas
  */
 
-use PHPUnit\Framework\TestCase;
+namespace TASoft\Util\Installer;
 
-class DateObjectTest extends TestCase
+
+use TASoft\Util\PDO;
+
+interface TableInstallerInterface extends InstallerInterface
 {
-    public function testDateFormat() {
-        $date = new \TASoft\Util\ValueObject\DateTime("2019-7-8 16:03:50");
-        echo $date->format("l D = d. F M Y G:i:s");
-    }
+	/**
+	 * Checks if the package is able to be installed on a given PDO
+	 *
+	 * @param PDO $PDO
+	 * @return bool
+	 */
+	public static function canInstall(PDO $PDO): bool;
+
+	/**
+	 * Initializes the table package.
+	 *
+	 * @param PDO $PDO
+	 * @param bool $skipContents
+	 * @return int
+	 */
+	public static function install(PDO  $PDO, bool $skipContents = false): int;
+
+	/**
+	 * Returns true, if the package is completely installed on given PDO.
+	 *
+	 * @param PDO $PDO
+	 * @return bool
+	 */
+	public static function isInstalled(PDO $PDO): bool;
 }
