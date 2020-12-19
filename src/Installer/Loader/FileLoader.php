@@ -62,7 +62,7 @@ class FileLoader extends SQLLoader
 		if(!$this->parsedSQL) {
 			$this->parsedSQL = array_map(function($v) {return trim($v);}, explode("/** DATA */", $this->loadSQL));
 		}
-		if($PDO->exec( $this->parsedSQL[0] )) {
+		if($PDO->exec( $this->parsedSQL[0] ) !== false) {
 			if(!$skipContents && isset($this->parsedSQL[1]))
 				return $PDO->exec( $this->parsedSQL[1] ) ? true : false;
 			return true;
