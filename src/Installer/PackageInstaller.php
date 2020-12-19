@@ -109,6 +109,8 @@ final class PackageInstaller implements TableInstallerInterface, TableUninstalle
 	 */
 	public static function install(PDO $PDO, bool $skip = false): int
 	{
+		if(NULL === self::$selected)
+			self::selectPackages();
 		foreach(self::$selected as $loaders) {
 			foreach($loaders as $drivers) {
 				/** @var LoaderInterface $driver */
@@ -155,6 +157,8 @@ final class PackageInstaller implements TableInstallerInterface, TableUninstalle
 
 	public static function uninstall(PDO $PDO, bool $tr = false): int
 	{
+		if(NULL === self::$selected)
+			self::selectPackages();
 		foreach(self::$selected as $loaders) {
 			foreach($loaders as $drivers) {
 				/** @var LoaderInterface $driver */
