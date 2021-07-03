@@ -25,6 +25,7 @@ namespace TASoft\Util;
 
 
 use Closure;
+use TASoft\Util\Mapper\DataMapper;
 use TASoft\Util\Mapper\MapperInterface;
 use Throwable;
 
@@ -234,6 +235,37 @@ class PDO extends \PDO
             $stmt->execute($values);
         }
     }
+
+	/**
+	 * @param string $tableName
+	 * @param array|DataMapper $data
+	 * @param int|null $existingID
+	 * @param string ...$fieldValues
+	 */
+    public function update(string $tableName, $data, int $existingID = NULL, ...$fieldValues) {
+    	if($fieldValues) {
+    		if(NULL === $existingID) {
+    			$fv = implode(",", array_map(function($v) {
+    				return "`$v`";
+				}, $fieldValues));
+    			$vv = array_pad([], count($fieldValues), '?');
+				$sql = $this->inject("INSERT INTO $tableName ($fv) VALUES ($vv)");
+			} else {
+    			$fv = [];
+    			foreach($fieldValues as $v)
+    				$fv[] = "`$v`=?";
+    			$fv = implode(",", $fv);
+				$sql = $this->inject("UPDATE $tableName SET $fv WHERE id = $existingID");
+			}
+
+			$prepared = [];
+			foreach ($fieldValues as $k) {
+				$prepared[] = $data[$k] ?? NULL;
+			}
+
+			$sql->send($prepared);
+		}
+	}
 
     /**
      * Performs SQL queries in transaction mode.
