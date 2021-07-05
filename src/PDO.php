@@ -248,7 +248,7 @@ class PDO extends \PDO
     			$fv = implode(",", array_map(function($v) {
     				return "`$v`";
 				}, $fieldValues));
-    			$vv = array_pad([], count($fieldValues), '?');
+				$vv = implode(",", array_pad([], count($fieldValues), '?'));
 				$sql = $this->inject("INSERT INTO $tableName ($fv) VALUES ($vv)");
 			} else {
     			$fv = [];
