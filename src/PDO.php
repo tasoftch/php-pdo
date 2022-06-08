@@ -75,6 +75,31 @@ class PDO extends \PDO
         return false;
     }
 
+	/**
+	 * Selects rows by sql and arguments and stacks the values according to the passed fieldname(s).
+	 *
+	 * @param string $sql
+	 * @param string|array $fieldName
+	 * @param array $arguments
+	 * @return array
+	 */
+	public function selectStack(string $sql, $fieldName, array $arguments = []) {
+		$stack = [];
+		foreach($this->select($sql, $arguments) as $record) {
+			if(is_string($fieldName))
+				$stack[] = $record[$fieldName];
+			elseif(is_iterable($fieldName)) {
+				$d=[];
+				foreach($fieldName as $key => $default) {
+					if(is_numeric($key)) {$key = $default;$default = NULL;}
+					$d[] = $record[$key] ?? $default;
+				}
+				$stack[] = $d;
+			}
+		}
+		return $stack;
+	}
+
     /**
      * Fetches one row and directly the value of a field name
      *
