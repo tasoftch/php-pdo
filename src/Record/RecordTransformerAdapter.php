@@ -39,7 +39,7 @@ class RecordTransformerAdapter implements RecordTransformerInterface, \IteratorA
 		$this->transformer = $transformer;
 	}
 
-	public function getIterator()
+	public function getIterator(): \Traversable
 	{
 		return $this();
 	}
