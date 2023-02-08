@@ -19,12 +19,12 @@ class DataMapper implements \ArrayAccess, \Countable
 	}
 
 
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return isset($this->data[$offset]);
 	}
 
-	public function offsetGet($offset)
+	public function offsetGet($offset): mixed
 	{
 		if($c = $this->constraints[$offset])
 			return $c($this->data[$offset] ?? NULL);
@@ -32,7 +32,7 @@ class DataMapper implements \ArrayAccess, \Countable
 		return $this->data[$offset] ?? NULL;
 	}
 
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		if($c = $this->constraints[$offset])
 			$value = $c($value);
@@ -40,12 +40,12 @@ class DataMapper implements \ArrayAccess, \Countable
 		$this->data[$offset] = $value;
 	}
 
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->data[$offset]);
 	}
 
-	public function count()
+	public function count(): int
 	{
 		return count($this->data);
 	}

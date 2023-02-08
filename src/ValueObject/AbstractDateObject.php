@@ -32,7 +32,7 @@ abstract class AbstractDateObject extends \DateTime
 
     const DEFAULT_FORMAT = '';
 
-    public function format($format)
+    public function format($format): string
     {
         $string = "";
         for($e=0;$e<strlen($format);$e++) {
